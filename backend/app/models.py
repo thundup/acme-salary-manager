@@ -1,7 +1,16 @@
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, CheckConstraint, Date, DateTime, ForeignKey, Numeric, String
+from sqlalchemy import (
+    BigInteger,
+    CheckConstraint,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -27,6 +36,14 @@ class Employee(Base):
         CheckConstraint("salary_minor > 0", name="ck_employees_salary_positive"),
         CheckConstraint(
             "bonus_minor IS NULL OR bonus_minor >= 0", name="ck_employees_bonus_non_negative"
+        ),
+        Index("ix_employees_status_full_name", "status", "full_name", "id"),
+        Index(
+            "ix_employees_status_market_salary",
+            "status",
+            "country_code",
+            "currency_code",
+            "salary_minor",
         ),
     )
 
