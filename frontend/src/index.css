@@ -124,6 +124,16 @@
   body {
     @apply bg-background text-foreground;
   }
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  select:not(:disabled),
+  a[href] {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
   html {
     @apply font-sans;
   }

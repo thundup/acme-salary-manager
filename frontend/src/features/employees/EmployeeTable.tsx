@@ -128,6 +128,7 @@ export function EmployeeTable({ employees, reference, sort, onSort, onEdit, onDe
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="text-primary hover:bg-primary/10 hover:text-primary"
                       onClick={() => onEdit(employee)}
                       aria-label={`Edit ${employee.full_name}`}
                     >
@@ -136,7 +137,7 @@ export function EmployeeTable({ employees, reference, sort, onSort, onEdit, onDe
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-destructive"
+                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                       onClick={() => onDelete(employee)}
                       aria-label={`Remove ${employee.full_name}`}
                     >
