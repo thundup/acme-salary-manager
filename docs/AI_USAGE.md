@@ -237,3 +237,15 @@ smoke-tests the API (10,000 employees) and the UI served from the same origin.
 
 **What I'd keep doing differently with AI next time:** measure before optimizing (the baseline
 changed the story), and verify claims (Postgres, Docker) with automation rather than prose.
+
+**Found only after deploying:** seeding the real Neon database hung. The loader's
+`executemany` made one network round trip per row, which is invisible on localhost and fatal
+over the network. The assistant found it by checking `pg_stat_activity` (an open transaction,
+0 rows committed after 5 minutes), stopped its own process by PID (the transaction rolled
+back cleanly), and switched to one multi-row `INSERT … VALUES` per 1,000 rows: **7.7 s to Neon**.
+It is slightly slower locally (0.2 s → 0.95 s) and PERFORMANCE.md records both numbers.
+Lesson: test the data path against the real, remote database, not only a local one.
+
+**Handling the database secret:** I offered to paste the Neon URL into the chat. The assistant
+instead read it from my clipboard inside the command, so it never appeared in the transcript,
+and printed only the host name to confirm it was the right database.

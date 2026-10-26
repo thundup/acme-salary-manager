@@ -28,7 +28,7 @@ Prerequisites: [uv](https://docs.astral.sh/uv/) (installs Python 3.12 for you), 
 
 ```sh
 make setup   # install backend + frontend dependencies, create the SQLite schema
-make seed    # 10,000 deterministic employees in ~0.2 s
+make seed    # 10,000 deterministic employees in ~1 s
 make dev     # API on :8000, UI on http://localhost:5173
 ```
 

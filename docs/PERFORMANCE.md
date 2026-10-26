@@ -8,7 +8,7 @@ Dataset: the 10,000 seeded employees.
 
 | Operation | Target | Measured |
 |---|---|---|
-| Seed 10,000 employees | < 5 s | **0.20 s** (generate 0.06 s + insert 0.13 s) |
+| Seed 10,000 employees | < 5 s | **0.95 s** local SQLite · 1.95 s local Postgres · 7.7 s to Neon over the network |
 | `GET /api/employees` (any page / filter / sort) | < 100 ms | **≤ 4 ms SQLite, ≤ 11 ms Postgres** (median) |
 | `GET /api/insights/*` | < 300 ms | **≤ 15 ms SQLite, ≤ 8 ms Postgres** (median) |
 
@@ -23,9 +23,24 @@ migrated database. Results were identical within ±0.01 s:
 | Re-run (idempotent: `ON CONFLICT DO NOTHING`) | 0 | 0.18–0.19 s |
 | `--reset` (delete all, re-insert) | 10,000 | 0.20 s |
 
-**Why it is fast:** rows are generated as plain dicts with no ORM objects, then inserted with
-one Core `INSERT … ON CONFLICT DO NOTHING` `executemany` per 1,000-row chunk, inside a single
-transaction.
+**Why it is fast:** rows are generated as plain dicts with no ORM objects, then inserted as one
+multi-row `INSERT … VALUES (…), (…), … ON CONFLICT DO NOTHING` statement per 1,000-row chunk,
+inside a single transaction. That is 10 round trips to the database for 10k rows.
+
+**Revised after deploying (Phase 6):** the first version used `executemany` (one statement,
+many parameter sets). Locally that was faster (0.20 s on SQLite), but against Neon Postgres in
+Singapore it made a network round trip per row and was still uncommitted after **5 minutes**,
+when it was stopped. Switching to multi-row `VALUES` gave:
+
+| Database | `executemany` (before) | multi-row `VALUES` (now) |
+|---|---|---|
+| Local SQLite | 0.20 s | 0.95 s |
+| Local Postgres 16 | 0.67 s | 1.95 s |
+| Neon Postgres (remote) | > 5 min, stopped | **7.7 s** |
+
+Locally it is slightly slower, because SQLAlchemy compiles a 12,000-parameter statement per
+chunk. That is still well inside the 5 s target, and the version that only works on localhost
+was the wrong one to keep. The tables below are from the original local measurement.
 
 **Measured alternatives, for comparison (same 10k rows):**
 
