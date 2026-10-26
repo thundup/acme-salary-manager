@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.services.errors import (
+    CountryNotFound,
     DomainError,
     DuplicateEmployee,
     EmployeeNotFound,
@@ -11,6 +12,7 @@ from app.services.errors import (
 
 STATUS_BY_ERROR: dict[type[DomainError], int] = {
     EmployeeNotFound: status.HTTP_404_NOT_FOUND,
+    CountryNotFound: status.HTTP_404_NOT_FOUND,
     DuplicateEmployee: status.HTTP_409_CONFLICT,
     EmployeeTerminated: status.HTTP_409_CONFLICT,
 }

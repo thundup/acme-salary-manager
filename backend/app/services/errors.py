@@ -30,3 +30,8 @@ class RuleViolation(DomainError):
 class EmployeeTerminated(DomainError):
     code = "employee_terminated"
     message = "Terminated employees cannot be edited"
+
+
+class CountryNotFound(DomainError):
+    code = "country_not_found"
+    message = "ACME has no employees in this country"
