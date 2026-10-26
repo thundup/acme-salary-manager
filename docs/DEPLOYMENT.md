@@ -38,13 +38,13 @@ DATABASE_URL='postgresql://…neon.tech/neondb?sslmode=require' uv run python -m
 ```
 
 Both commands are idempotent, so re-running them is safe. Check:
-`https://acme-salary-manager-api.vercel.app/api/health` → `{"status":"ok","database":"ok"}`.
+`https://acme-salary-manager-rosy.vercel.app/api/health` → `{"status":"ok","database":"ok"}`.
 
 ### 3. UI project
 1. **Add New… → Project** → the same repo again.
 2. **Project name:** `acme-salary-manager` · **Root Directory:** `frontend` · Framework:
    **Vite** (auto-detected). Deploy.
-3. `frontend/vercel.json` rewrites `/api/*` to `https://acme-salary-manager-api.vercel.app`.
+3. `frontend/vercel.json` rewrites `/api/*` to `https://acme-salary-manager-rosy.vercel.app`.
    If Vercel gave the API project a different domain, update that one line and push.
 
 Every push to `main` redeploys both projects. **Schema changes need step 2 re-run** before or

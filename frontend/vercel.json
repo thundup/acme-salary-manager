@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://acme-salary-manager-api.vercel.app/api/:path*"
+      "destination": "https://acme-salary-manager-rosy.vercel.app/api/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
