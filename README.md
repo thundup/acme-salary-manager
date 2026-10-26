@@ -38,7 +38,7 @@ Or run everything in one container: see [Deployment](docs/DEPLOYMENT.md#docker).
 ## Tests and checks
 
 ```sh
-make test    # pytest (90 tests) + Vitest (50 tests)
+make test    # pytest (90 tests) + Vitest (55 tests)
 make lint    # ruff, mypy --strict, ESLint, Prettier, tsc
 ```
 
