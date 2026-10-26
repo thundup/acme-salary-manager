@@ -67,9 +67,9 @@ All responses are JSON. Errors use one envelope: `{"error": {"code": "...", "mes
 | PATCH | `/api/employees/{id}` | partial update (`employee_code` is immutable; `bonus_minor` can be cleared with `null`) | 200 | 404, 409 duplicate email / terminated, 422 |
 | DELETE | `/api/employees/{id}` | soft delete (mark terminated); idempotent | 204 | 404 |
 | GET | `/api/reference` | countries, currencies, departments, job titles (for forms & filters) | 200 | |
-| GET | `/api/insights/countries` | per country: headcount, min, max, avg, median (native currency) | 200 | |
-| GET | `/api/insights/countries/{cc}/breakdown?by=job_title\|department` | avg / min / max / headcount per group | 200 | 404, 422 |
-| GET | `/api/insights/countries/{cc}/distribution?buckets=10` | histogram buckets | 200 | 404, 422 |
+| GET | `/api/insights/countries` | per **country + pay currency**: headcount, min, max, avg, median | 200 | |
+| GET | `/api/insights/countries/{cc}/breakdown?by=job_title\|department&currency=` | avg / min / max / headcount per group, sorted by avg desc | 200 | 404, 422 |
+| GET | `/api/insights/countries/{cc}/distribution?buckets=10&currency=` | equal-width buckets `[lower, upper)` with counts (1–50 buckets) | 200 | 404, 422 |
 | GET | `/api/insights/summary` | org-wide headcount, total base + bonus and averages in INR, `approximate: true`, `rates_as_of` | 200 | |
 
 Money never goes over the wire as a float. On an employee it is flat (`salary_minor`, `bonus_minor`,

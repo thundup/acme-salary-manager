@@ -92,3 +92,37 @@ in search so user input can't act as a SQL wildcard (with a test).
 
 **Dependency added:** `email-validator`, which Pydantic's `EmailStr` needs. Writing our own
 email regex would be worse.
+
+## Phase 3: Salary insights
+
+**Prompt (summary):** "Per-country min/max/avg/median and headcount, avg by job title within a
+country, an org-wide summary in the reporting currency labelled approximate, and distribution
+buckets, all computed in SQL. Unit-test with small hand-crafted datasets."
+
+**Design change the assistant raised before coding:** a country can contain employees paid in
+different currencies, and averaging them together is wrong. Stats are grouped by country + pay
+currency instead (see ADR-2). I agreed.
+
+**How the logic is split:**
+- Pure helpers (`app/domain/stats.py`): half-up division, equal-width bucket edges (with a
+  test that each salary's SQL bucket index lands inside its range), and exact INR
+  conversion. 10 tests, no DB.
+- SQL (`app/repositories/insights.py`): `GROUP BY` for min/max/avg/count, a window-function
+  median that works on SQLite and Postgres, and bucket assignment with integer arithmetic. The
+  assistant compiled the queries for both dialects to check that `//` becomes integer division
+  in each.
+- Service tests use a 10-person dataset (INR 100/200/300/400, GBP 1000/2000/3000, AED 500,
+  USD 700, plus one terminated employee who must never be counted). Every expected number can
+  be worked out by hand.
+
+**Mistakes caught by the tests:**
+- The *test* was wrong: the assistant miscounted the dataset's headcount (7 instead of 9). The
+  failing assertion caught it, and the expectation was corrected; the code was right.
+- An aggregate with no `GROUP BY` returns one row even when no rows match, so an empty country
+  produced `None` for min/max. Fixed with a dedicated `salary_range` query that returns `None`
+  explicitly, with a test.
+- SQLAlchemy 2.1 deprecated `Result.tuples()`. This surfaced because pytest treats warnings as
+  errors, and was removed.
+
+**Checked by hand against a running server:** the org summary for six sample employees matched
+the hand-computed ₹50,185,000.
