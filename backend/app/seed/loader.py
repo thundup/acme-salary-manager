@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from itertools import batched
 from typing import Any
 
-from sqlalchemy import Insert, delete, func, select
+from sqlalchemy import Insert, delete, func, select, text
 from sqlalchemy.dialects import postgresql, sqlite
 from sqlalchemy.orm import Session
 
@@ -24,7 +24,13 @@ def seed_employees(
             [{**row, "status": "active", "created_at": now, "updated_at": now} for row in chunk],
         )
     session.commit()
+    _refresh_planner_statistics(session)
     return _count(session) - before
+
+
+def _refresh_planner_statistics(session: Session) -> None:
+    session.execute(text("ANALYZE"))
+    session.commit()
 
 
 def _insert_ignoring_conflicts(session: Session) -> Insert:
