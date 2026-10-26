@@ -126,3 +126,27 @@ currency instead (see ADR-2). I agreed.
 
 **Checked by hand against a running server:** the org summary for six sample employees matched
 the hand-computed ₹50,185,000.
+
+## Phase 4: Seed script
+
+**Prompt (summary):** "Deterministic seed of 10,000 employees from first/last name files with
+realistic distributions, idempotent, fast (bulk inserts). Record runtime in PERFORMANCE.md."
+
+**What the assistant built:**
+- `first_names.txt` / `last_names.txt` (~170 each, mixed across ACME's markets), generated
+  because none were provided. The trade-off: names are combined at random, not matched to country.
+- A pure generator taking `seed` and the name lists. Weighted countries and departments, a
+  seniority pyramid, salary = USD base per level × market factor × department factor ×
+  log-normal noise, converted to the pay currency and rounded to 1,000 (10,000 for JPY).
+  40% get a 5–20% bonus. 25% of UAE and 10% of Singapore staff are paid in USD. Hire dates are
+  skewed to recent years and relative to a *fixed* date, so the output never depends on today.
+- A loader that uses `INSERT … ON CONFLICT DO NOTHING`, so a re-run is a no-op and never
+  overwrites HR's edits to seeded rows. `--reset` wipes and reseeds.
+
+**Corrected after looking at the output:** the first salary bands gave a US Senior Software
+Engineer a median of $116k, which is low. The base per level was raised (≈ ₹20L entry-level in
+India, ≈ $140k US senior). There is a test that seniority pays more than entry level in the same market.
+
+**Verified, not assumed:** every generated row passes the same domain rules as the API (test).
+Codes and emails are unique across all 10k (test). Runtime was measured 5× and compared against
+the ORM row-by-row approach (see PERFORMANCE.md).
