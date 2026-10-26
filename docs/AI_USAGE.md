@@ -150,3 +150,47 @@ India, ≈ $140k US senior). There is a test that seniority pays more than entry
 **Verified, not assumed:** every generated row passes the same domain rules as the API (test).
 Codes and emails are unique across all 10k (test). Runtime was measured 5× and compared against
 the ORM row-by-row approach (see PERFORMANCE.md).
+
+## Phase 5: Frontend
+
+**Prompt (summary):** "Employees page (server-side pagination, search, filters, sort, add/edit
+dialog with validation mirroring the backend, delete with confirmation) and Insights page
+(country selector, KPI cards, avg-by-title chart, distribution chart). Loading/empty/error
+states, `Intl.NumberFormat` per currency, typed API client, tests."
+
+**What was built:**
+- A typed API client that turns the backend's error envelope into an `ApiError` with
+  per-field messages. A 409 "email already in use" therefore lands next to the email field.
+- Money helpers. Rupees use Indian grouping (₹32,00,000) and yen has no decimals. Form input
+  is parsed from major units to integer minor units with string arithmetic, never floats.
+- Form validation as a pure function mirroring the backend rules. The server stays the source
+  of truth, and its field errors are shown too.
+- Choosing a country defaults the pay currency, and changing department clears an invalid job
+  title. Both come from the domain rules, not just styling.
+- The Insights page uses country + pay currency (matching the Phase 3 API). The org-wide INR
+  figures are marked "≈" with the rate date, and per-country figures are exact.
+- Backend: added `GET /api/reference` (test-first) so the forms and filters use the same
+  catalogue as the validation.
+
+**Testing:** 50 Vitest + Testing Library tests: money/client/validation units, plus
+behavior tests for the Employees page (search debounce, sort toggling with `aria-sort`,
+paging, filter resets page, empty and error states, delete only after confirmation) and the
+form (client errors block the request, minor-unit payload, server error mapping, immutable
+code on edit). The fetch mock routes by method + path and fails loudly on unmocked calls.
+The utility tests were written alongside the code rather than strictly red-first.
+
+**Corrections and choices made along the way:**
+- The shadcn CLI added a package named `cn`. The assistant checked it before accepting it: it is
+  the shadcn maintainers' own `clsx` + `tailwind-merge` replacement, not a typosquat.
+- The default shadcn chart colors are near-white greys, so they were replaced with a blue and
+  a teal that have contrast in light and dark themes.
+- **Found by looking at the running app, not by tests:** after seeding 10k employees and
+  screenshotting both pages (headless Chrome with an isolated profile), the chart bars were
+  invisible because the grow-in animation never finished there, and averages showed paise
+  ("₹23,18,906.65"). Animation was turned off and summary figures now round to whole units
+  (with a test). Lazy-loading the Insights page removed the build's 500 kB bundle warning.
+- Dropped TanStack Table, Radix Select and a form library as unnecessary at this size (see ADR-8).
+
+**Dependencies added and why:** `tailwindcss` (styling), shadcn/ui and what it pulls in
+(`radix-ui`, `class-variance-authority`, `cn`, `lucide-react`, `tw-animate-css`, Geist font),
+`@tanstack/react-query` (server state), `react-router` (two pages), `recharts` (charts).

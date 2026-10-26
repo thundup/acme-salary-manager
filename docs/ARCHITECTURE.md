@@ -141,16 +141,24 @@ The client formats both with `Intl.NumberFormat`.
   No SQLite-only SQL in the repositories.
 - **Trade-off:** SQLite has one writer at a time, which is fine for an HR tool with a few users.
 
-### ADR-8: UI styling — Tailwind CSS (+ shadcn/ui components, TanStack Table)
+### ADR-8: UI styling: Tailwind CSS + shadcn/ui
 - **Context:** The core of the app is a server-paginated table, a form dialog, and charts.
-- **Decision:** Tailwind CSS for styling. Accessible primitives (dialog, select, alert-dialog)
-  come from shadcn/ui, which is Tailwind + Radix copied into the repo rather than a runtime
-  dependency. TanStack Table provides headless table state, wired to server-side pagination
-  and sort. Recharts for charts.
+- **Decision:** Tailwind CSS for styling. shadcn/ui (Radix primitives copied into
+  `src/components/ui`) supplies the accessible pieces that are hard to get right: modal dialog,
+  confirm dialog, buttons, cards. Recharts draws the charts. TanStack Query handles server state:
+  caching, keeping the previous page visible while the next one loads, and invalidating
+  employees + insights after every write.
+- **What was deliberately left out:** TanStack Table. Sorting and paging happen on the server,
+  so a plain `<table>` with sortable header buttons (`aria-sort`) is enough. Radix `Select` was
+  replaced with a styled native `<select>`, which is accessible by default, works on mobile,
+  is predictable in tests, and is fine for lists of 10–25 options.
+  No form library either: a pure `validateEmployeeForm` mirrors the backend rules and is
+  unit-tested on its own.
 - **Trade-off vs MUI:** MUI's DataGrid gives more for free, but the server-mode features we'd
-  rely on are partly in paid tiers, the bundle is heavier, and the styling is harder to make
-  look intentional. With Tailwind we own the component code: a little more setup, but a smaller
-  bundle and easier review.
+  rely on are partly in paid tiers and the bundle is heavier. With shadcn the component code is
+  ours to read and change.
+- **Performance:** the Insights page (Recharts, about 365 kB) is lazy-loaded, so the Employees page
+  doesn't pay for charts.
 
 ### ADR-9: Deployment as a single Docker image
 - **Decision:** A multi-stage Dockerfile builds the SPA with Node, then copies `dist/` into a slim
