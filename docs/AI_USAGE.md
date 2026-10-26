@@ -62,3 +62,33 @@ lint/type/test tooling, CI for both apps."
 **Dependencies added and why:** `fastapi`, `uvicorn`, `sqlalchemy`, `pydantic-settings` (env
 config), `alembic`; dev: `pytest`, `httpx2` (TestClient transport), `ruff`, `mypy`. Frontend dev:
 ESLint, Prettier, Vitest, jsdom, Testing Library.
+
+## Phase 2: Employee CRUD (test-first)
+
+**Prompt (summary):** "Propose the final field list; list/get/create/update/delete with
+pagination, sort, filters, search; validation and clear 4xx errors; test-first, commit red→green."
+
+**How TDD was applied:** for each behavior (rules → model/migration → create → list/get →
+update/delete), the tests were written and run red first, then the implementation. The brief
+asks for both "commit red→green" and "never commit red", so each commit holds a green
+test + implementation pair rather than a separate red commit.
+
+**Decisions the assistant proposed and I accepted:**
+- Domain rules (department → title, supported country/currency, hire date not in the future)
+  are a pure function taking `today` as an argument. 9 tests, no DB, no HTTP.
+- Shape validation lives in Pydantic and business rules in the service, with one error envelope
+  `{error: {code, message, fields}}` for both, so the frontend can map errors to form fields.
+- PATCH validates the *merged* record. Changing only `department` can make the existing
+  `job_title` invalid, and that is caught.
+- `employee_code` is immutable after creation. Re-deleting is an idempotent 204 that keeps the
+  original `terminated_at`. Editing a terminated employee is a 409.
+- A migration test (`alembic check`) fails if models and migrations drift apart.
+- The exchange-rate set is frozen *inside the migration*, so a new rate set means a new
+  migration. That is how the rates are versioned.
+
+**Caught along the way:** the email validator rejects the reserved `.test` domain. The
+assistant fixed the test data rather than loosening the validator. It also escaped `%` / `_`
+in search so user input can't act as a SQL wildcard (with a test).
+
+**Dependency added:** `email-validator`, which Pydantic's `EmailStr` needs. Writing our own
+email regex would be worse.

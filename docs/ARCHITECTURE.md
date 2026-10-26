@@ -50,8 +50,9 @@ erDiagram
     }
 ```
 
-Countries are not a table. ISO 3166 codes are validated in the domain layer and display names
-come from a static map. A table would add a join to every list query for no behavior.
+Countries are not a table. The countries ACME operates in, the supported currencies and the
+department → job-title catalogue live in `app/reference.py` and are validated by pure functions in
+`app/domain/employee.py`. Display names come from the same map. A table would add a join to every list query for no behavior.
 
 ## API
 
@@ -63,16 +64,17 @@ All responses are JSON. Errors use one envelope: `{"error": {"code": "...", "mes
 | GET | `/api/employees` | list: `page`, `page_size` (≤100), `sort`, `order`, `country`, `department`, `job_title`, `q`, `status` (`active` default \| `terminated` \| `all`) | 200 `{items, total, page, page_size}` | 422 |
 | GET | `/api/employees/{id}` | one employee | 200 | 404 |
 | POST | `/api/employees` | create | 201 | 409 duplicate email/code, 422 |
-| PATCH | `/api/employees/{id}` | partial update | 200 | 404, 409, 422 |
-| DELETE | `/api/employees/{id}` | soft delete (mark terminated) | 204 | 404 |
+| PATCH | `/api/employees/{id}` | partial update (`employee_code` is immutable; `bonus_minor` can be cleared with `null`) | 200 | 404, 409 duplicate email / terminated, 422 |
+| DELETE | `/api/employees/{id}` | soft delete (mark terminated); idempotent | 204 | 404 |
 | GET | `/api/reference` | countries, currencies, departments, job titles (for forms & filters) | 200 | |
 | GET | `/api/insights/countries` | per country: headcount, min, max, avg, median (native currency) | 200 | |
 | GET | `/api/insights/countries/{cc}/breakdown?by=job_title\|department` | avg / min / max / headcount per group | 200 | 404, 422 |
 | GET | `/api/insights/countries/{cc}/distribution?buckets=10` | histogram buckets | 200 | 404, 422 |
 | GET | `/api/insights/summary` | org-wide headcount, total base + bonus and averages in INR, `approximate: true`, `rates_as_of` | 200 | |
 
-Money goes over the wire as `{"amount_minor": 8500000, "currency": "INR"}`. The client formats it
-with `Intl.NumberFormat`, so the API never sends a float.
+Money never goes over the wire as a float. On an employee it is flat (`salary_minor`, `bonus_minor`,
+`currency_code`), which keeps the form simple. Insights return `{"amount_minor": 8500000, "currency": "INR"}`.
+The client formats both with `Intl.NumberFormat`.
 
 ## Key decisions (ADR-lite)
 
