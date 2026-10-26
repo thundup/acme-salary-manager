@@ -194,3 +194,46 @@ The utility tests were written alongside the code rather than strictly red-first
 **Dependencies added and why:** `tailwindcss` (styling), shadcn/ui and what it pulls in
 (`radix-ui`, `class-variance-authority`, `cn`, `lucide-react`, `tw-animate-css`, Geist font),
 `@tanstack/react-query` (server state), `react-router` (two pages), `recharts` (charts).
+
+## Phase 6: Polish, performance, deploy
+
+**Prompt (summary):** "Indexes justified by real query patterns with before/after timings,
+Dockerfile(s), env-based config, deployment, README, final AI_USAGE pass, TRADEOFFS.md."
+
+**Deployment decision (mine, with the assistant's analysis):** I asked for Vercel. The
+assistant pointed out that a serverless function has no persistent disk, so SQLite there would
+lose writes between instances. It laid out the free options (Render + Docker, Vercel + Neon,
+GitHub Pages + an API elsewhere, and why Fly.io, Railway and Render Postgres didn't fit
+"free"). I chose Vercel Hobby + Neon Postgres.
+
+**"Swappable for Postgres" was proven, not claimed:**
+- Added the `psycopg` driver and URL normalization for hosting-provider URLs (tested).
+- The whole backend suite can target any database via `TEST_DATABASE_URL`. It ran green on a
+  local Postgres 16 first, then as a CI job that also runs migrations, `alembic check` and the seed.
+- The assistant compared insight results on SQLite and Postgres over the same 10k employees:
+  identical to the paisa.
+
+**Indexes: measured, including a regression:**
+- Baseline first: every endpoint was already far inside its target. The README and
+  PERFORMANCE.md say so instead of pretending the indexes rescued anything.
+- Two composite indexes were chosen from the actual query plans (sort + full scan) and verified
+  with `EXPLAIN` before and after.
+- **The first measurement showed some SQLite queries got *slower*.** The assistant traced it to
+  missing planner statistics. `ANALYZE` fixed it, and the seed now runs `ANALYZE` after loading.
+  One small regression (+1.2 ms) remains, with the reason documented and accepted.
+
+**Docker without Docker:** Docker isn't installed on my machine, so instead of shipping an
+untested Dockerfile the assistant added a CI job that builds the image, starts it, and
+smoke-tests the API (10,000 employees) and the UI served from the same origin.
+
+**Other things caught:**
+- Serving the SPA from FastAPI got a path-traversal test (`/..%2Fsecret.txt` must not leak
+  files outside the UI folder) and keeps unknown `/api/*` paths as JSON 404s.
+- **A mistake by the assistant:** one commit (the benchmark script) was made while ruff still
+  reported line-length errors, breaking the "never commit red" rule. It noticed straight away,
+  fixed the lines and amended that commit *before* pushing, so no red commit reached GitHub.
+- Stayed off shared resources: separate `acme_*` databases on the local Postgres, its own
+  headless Chrome profile for screenshots, and its own processes stopped by PID.
+
+**What I'd keep doing differently with AI next time:** measure before optimizing (the baseline
+changed the story), and verify claims (Postgres, Docker) with automation rather than prose.
