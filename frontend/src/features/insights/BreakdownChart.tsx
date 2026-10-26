@@ -69,7 +69,12 @@ export function BreakdownChart({
                     'Average',
                   ]}
                 />
-                <Bar dataKey="average" fill="var(--chart-2)" radius={[0, 4, 4, 0]} />
+                <Bar
+                  isAnimationActive={false}
+                  dataKey="average"
+                  fill="var(--chart-2)"
+                  radius={[0, 4, 4, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>

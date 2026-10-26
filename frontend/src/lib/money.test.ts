@@ -14,6 +14,10 @@ describe('formatMoney', () => {
     expect(formatMoney(12_345_67, 'USD', 2)).toBe('$12,345.67')
   })
 
+  it('can round to whole units for summary figures', () => {
+    expect(formatMoney(23_18_906_65, 'INR', 2, { wholeUnits: true })).toBe('₹23,18,907')
+  })
+
   it('can format compactly for chart axes', () => {
     expect(formatMoney(120_000_00, 'USD', 2, { compact: true })).toBe('$120K')
   })

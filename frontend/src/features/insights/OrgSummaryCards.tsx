@@ -3,7 +3,8 @@ import { formatMoney } from '@/lib/money'
 import { KpiCard } from './KpiCard'
 
 export function OrgSummaryCards({ summary }: { summary: OrgSummary }) {
-  const inr = (amountMinor: number) => formatMoney(amountMinor, summary.total_salary.currency, 2)
+  const inr = (amountMinor: number) =>
+    formatMoney(amountMinor, summary.total_salary.currency, 2, { wholeUnits: true })
   const ratesNote = summary.rates_as_of
     ? `Approximate: converted to ${summary.total_salary.currency} at fixed rates as of ${new Date(
         summary.rates_as_of,

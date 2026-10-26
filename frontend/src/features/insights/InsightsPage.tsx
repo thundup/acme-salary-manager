@@ -118,7 +118,7 @@ function CountryDetail({
         <KpiCard label="Highest" value={format(market.max.amount_minor)} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid items-start gap-4 lg:grid-cols-2">
         <BreakdownChart
           country={market.country_code}
           currency={market.currency_code}

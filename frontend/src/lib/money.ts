@@ -8,14 +8,14 @@ export function formatMoney(
   amountMinor: number,
   currency: string,
   minorUnit: number,
-  { compact = false }: { compact?: boolean } = {},
+  { compact = false, wholeUnits = false }: { compact?: boolean; wholeUnits?: boolean } = {},
 ): string {
   return new Intl.NumberFormat(localeFor(currency), {
     style: 'currency',
     currency,
     notation: compact ? 'compact' : 'standard',
     minimumFractionDigits: 0,
-    maximumFractionDigits: compact ? 1 : minorUnit,
+    maximumFractionDigits: compact ? 1 : wholeUnits ? 0 : minorUnit,
   }).format(amountMinor / 10 ** minorUnit)
 }
 

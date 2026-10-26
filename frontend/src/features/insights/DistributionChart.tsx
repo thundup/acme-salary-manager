@@ -51,7 +51,12 @@ export function DistributionChart({
                   labelFormatter={(_label, payload) => payload[0]?.payload.range ?? ''}
                   formatter={(value) => [Number(value).toLocaleString(), 'People']}
                 />
-                <Bar dataKey="count" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                <Bar
+                  isAnimationActive={false}
+                  dataKey="count"
+                  fill="var(--chart-1)"
+                  radius={[4, 4, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
