@@ -1,4 +1,7 @@
-.PHONY: setup migrate test lint format dev dev-backend dev-frontend
+BACKEND_PORT ?= 8000
+FRONTEND_PORT ?= 5173
+
+.PHONY: setup migrate seed test lint format dev dev-backend dev-frontend
 
 setup:
 	cd backend && uv sync
@@ -7,6 +10,9 @@ setup:
 
 migrate:
 	cd backend && uv run alembic upgrade head
+
+seed:
+	cd backend && uv run python -m app.seed $(ARGS)
 
 test:
 	cd backend && uv run pytest
@@ -24,7 +30,7 @@ dev:
 	$(MAKE) -j2 dev-backend dev-frontend
 
 dev-backend:
-	cd backend && uv run uvicorn app.main:app --reload --port 8000
+	cd backend && uv run uvicorn app.main:app --reload --port $(BACKEND_PORT)
 
 dev-frontend:
-	cd frontend && pnpm dev
+	cd frontend && API_TARGET=http://127.0.0.1:$(BACKEND_PORT) pnpm dev --port $(FRONTEND_PORT) --strictPort
