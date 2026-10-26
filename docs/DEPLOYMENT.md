@@ -4,7 +4,7 @@ Two supported targets. Both use the same code; only configuration differs.
 
 | Target | What runs where | Data |
 |---|---|---|
-| **Vercel (live demo)** | UI = static site · API = FastAPI as a Python serverless function · DB = Neon Postgres | Persistent |
+| **Vercel (live demo: [UI](https://acme-salary-manager-2kmr.vercel.app), [API](https://acme-salary-manager-rosy.vercel.app/docs))** | UI = static site · API = FastAPI as a Python serverless function · DB = Neon Postgres | Persistent |
 | **Docker (anywhere)** | One image: FastAPI serves the API *and* the built UI · SQLite in `/data` | Seeded on start, persistent only if `/data` is a volume |
 
 Configuration is environment variables only:
@@ -42,7 +42,8 @@ Both commands are idempotent, so re-running them is safe. Check:
 
 ### 3. UI project
 1. **Add New… → Project** → the same repo again.
-2. **Project name:** `acme-salary-manager` · **Root Directory:** `frontend` · Framework:
+2. **Project name:** any free name (Vercel names are global; this deployment got
+   `acme-salary-manager-2kmr.vercel.app`) · **Root Directory:** `frontend` · Framework:
    **Vite** (auto-detected). Deploy.
 3. `frontend/vercel.json` rewrites `/api/*` to `https://acme-salary-manager-rosy.vercel.app`.
    If Vercel gave the API project a different domain, update that one line and push.

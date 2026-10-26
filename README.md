@@ -3,7 +3,9 @@
 A web app for ACME's HR team to manage salaries for ~10,000 employees across 10 countries,
 replacing a spreadsheet, and to answer "how do we pay people?" in seconds.
 
-**Live demo:** _link added after deployment_ · synthetic data, no login (see [Requirements](docs/REQUIREMENTS.md#out-of-scope-and-why))
+**Live demo:** https://acme-salary-manager-2kmr.vercel.app · API docs (Swagger): https://acme-salary-manager-rosy.vercel.app/docs
+Synthetic data, no login (see [Requirements](docs/REQUIREMENTS.md#out-of-scope-and-why)). Hosted on Vercel's free tier
+with Neon Postgres, so the first request after a quiet spell can take a few seconds while things wake up.
 
 | Employees | Insights |
 |---|---|
