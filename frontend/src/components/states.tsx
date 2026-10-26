@@ -20,7 +20,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-lg border border-dashed p-10 text-center">
+    <div className="rounded-xl border border-dashed bg-card p-10 text-center">
       <p className="font-medium">{title}</p>
       {children && <div className="mt-1 text-sm text-muted-foreground">{children}</div>}
     </div>

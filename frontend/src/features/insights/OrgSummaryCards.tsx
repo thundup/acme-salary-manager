@@ -14,13 +14,22 @@ export function OrgSummaryCards({ summary }: { summary: OrgSummary }) {
   return (
     <div className="space-y-2">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Active employees" value={summary.headcount.toLocaleString()} />
+        <KpiCard highlight label="Active employees" value={summary.headcount.toLocaleString()} />
         <KpiCard
+          highlight
           label="Total annual base pay"
           value={`≈ ${inr(summary.total_salary.amount_minor)}`}
         />
-        <KpiCard label="Average base pay" value={`≈ ${inr(summary.average_salary.amount_minor)}`} />
-        <KpiCard label="Total annual bonus" value={`≈ ${inr(summary.total_bonus.amount_minor)}`} />
+        <KpiCard
+          highlight
+          label="Average base pay"
+          value={`≈ ${inr(summary.average_salary.amount_minor)}`}
+        />
+        <KpiCard
+          highlight
+          label="Total annual bonus"
+          value={`≈ ${inr(summary.total_bonus.amount_minor)}`}
+        />
       </div>
       <p className="text-xs text-muted-foreground">{ratesNote}. Country figures below are exact.</p>
     </div>

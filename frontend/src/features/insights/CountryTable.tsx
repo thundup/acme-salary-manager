@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { flagEmoji } from '@/lib/display'
 import { moneyFormatter } from './format'
 
 export function CountryTable({
@@ -19,10 +20,10 @@ export function CountryTable({
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-semibold">Pay by country</h2>
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="bg-muted/60">
+            <TableRow className="hover:bg-transparent">
               <TableHead>Country</TableHead>
               <TableHead>Pay currency</TableHead>
               <TableHead className="text-right">Headcount</TableHead>
@@ -37,7 +38,12 @@ export function CountryTable({
               const format = moneyFormatter(reference, m.currency_code)
               return (
                 <TableRow key={`${m.country_code}:${m.currency_code}`}>
-                  <TableCell className="font-medium">{m.country_name}</TableCell>
+                  <TableCell className="font-medium whitespace-nowrap">
+                    <span aria-hidden="true" className="mr-1.5">
+                      {flagEmoji(m.country_code)}
+                    </span>
+                    {m.country_name}
+                  </TableCell>
                   <TableCell>{m.currency_code}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {m.headcount.toLocaleString()}

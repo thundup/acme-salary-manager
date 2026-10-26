@@ -91,7 +91,7 @@ export function EmployeesPage() {
         </Button>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-2 rounded-xl border bg-card p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
         <Input
           type="search"
           placeholder="Search name or email"
@@ -174,7 +174,7 @@ export function EmployeesPage() {
         </EmptyState>
       ) : (
         <div
-          className={`rounded-lg border transition-opacity ${employees.isPlaceholderData ? 'opacity-60' : ''}`}
+          className={`overflow-hidden rounded-xl border bg-card shadow-sm transition-opacity ${employees.isPlaceholderData ? 'opacity-60' : ''}`}
         >
           <EmployeeTable
             employees={employees.data.items}

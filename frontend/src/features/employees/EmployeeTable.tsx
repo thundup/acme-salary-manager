@@ -9,8 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { flagEmoji, initials } from '@/lib/display'
 import { formatMoney } from '@/lib/money'
 import { minorUnitOf } from './form'
+import { EMPLOYMENT_TYPE_LABELS } from './labels'
 
 export interface SortState {
   column: SortColumn
@@ -42,8 +44,8 @@ export function EmployeeTable({ employees, reference, sort, onSort, onEdit, onDe
 
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
+      <TableHeader className="bg-muted/60">
+        <TableRow className="hover:bg-transparent">
           {COLUMNS.map((column) => {
             const active = sort.column === column.key
             return (
@@ -81,12 +83,34 @@ export function EmployeeTable({ employees, reference, sort, onSort, onEdit, onDe
             >
               <TableCell className="font-mono text-xs">{employee.employee_code}</TableCell>
               <TableCell>
-                <div className="font-medium">{employee.full_name}</div>
-                <div className="text-xs text-muted-foreground">{employee.email}</div>
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
+                  >
+                    {initials(employee.full_name)}
+                  </span>
+                  <div>
+                    <div className="font-medium">{employee.full_name}</div>
+                    <div className="text-xs text-muted-foreground">{employee.email}</div>
+                  </div>
+                </div>
               </TableCell>
-              <TableCell>{employee.job_title}</TableCell>
+              <TableCell>
+                <div>{employee.job_title}</div>
+                {employee.employment_type !== 'full_time' && (
+                  <Badge variant="outline" className="mt-1">
+                    {EMPLOYMENT_TYPE_LABELS[employee.employment_type]}
+                  </Badge>
+                )}
+              </TableCell>
               <TableCell>{employee.department}</TableCell>
-              <TableCell>{countryName(employee.country_code)}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                <span aria-hidden="true" className="mr-1.5">
+                  {flagEmoji(employee.country_code)}
+                </span>
+                {countryName(employee.country_code)}
+              </TableCell>
               <TableCell className="text-right tabular-nums">
                 <div>{formatMoney(employee.salary_minor, employee.currency_code, minorUnit)}</div>
                 {employee.bonus_minor !== null && (

@@ -15,10 +15,18 @@ const NAV = [
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b">
+    <div className="flex min-h-screen flex-col bg-muted/40 text-foreground">
+      <header className="sticky top-0 z-10 border-b bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3">
-          <span className="font-semibold">ACME Salary Manager</span>
+          <span className="flex items-center gap-2 font-semibold">
+            <span
+              aria-hidden="true"
+              className="grid size-7 place-items-center rounded-md bg-primary text-sm text-primary-foreground"
+            >
+              A
+            </span>
+            ACME Salary Manager
+          </span>
           <nav aria-label="Main" className="flex gap-1">
             {NAV.map((item) => (
               <NavLink
@@ -27,7 +35,7 @@ export default function App() {
                 className={({ isActive }) =>
                   cn(
                     'rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground',
-                    isActive && 'bg-muted font-medium text-foreground',
+                    isActive && 'bg-primary/10 font-medium text-primary',
                   )
                 }
               >
@@ -37,7 +45,7 @@ export default function App() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <Routes>
           <Route path="/" element={<Navigate to="/employees" replace />} />
           <Route path="/employees" element={<EmployeesPage />} />
@@ -52,6 +60,9 @@ export default function App() {
           <Route path="*" element={<Navigate to="/employees" replace />} />
         </Routes>
       </main>
+      <footer className="border-t bg-background py-4 text-center text-xs text-muted-foreground">
+        ACME Salary Manager · demo with synthetic data
+      </footer>
     </div>
   )
 }
