@@ -69,3 +69,22 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --tag acme-salary-manager .
+      - run: docker run --detach --name acme --publish 8000:8000 acme-salary-manager
+      - name: Wait for the app to migrate, seed and start
+        run: |
+          for i in $(seq 1 30); do
+            curl --silent --fail http://localhost:8000/api/health && exit 0
+            sleep 2
+          done
+          docker logs acme
+          exit 1
+      - name: Smoke test the API and the UI from the same origin
+        run: |
+          curl --silent --fail "http://localhost:8000/api/employees?page_size=1" | grep '"total":10000'
+          curl --silent --fail http://localhost:8000/insights | grep 'id="root"'
