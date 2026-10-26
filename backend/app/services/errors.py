@@ -25,3 +25,8 @@ class DuplicateEmployee(DomainError):
 class RuleViolation(DomainError):
     code = "validation_error"
     message = "Some fields are invalid"
+
+
+class EmployeeTerminated(DomainError):
+    code = "employee_terminated"
+    message = "Terminated employees cannot be edited"

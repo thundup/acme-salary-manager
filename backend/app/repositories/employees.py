@@ -106,3 +106,9 @@ def list_page(session: Session, query: EmployeeListQuery) -> tuple[list[Employee
         .offset((query.page - 1) * query.page_size)
     )
     return list(rows), total
+
+
+def save(session: Session, employee: Employee) -> Employee:
+    session.commit()
+    session.refresh(employee)
+    return employee

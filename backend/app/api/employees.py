@@ -1,14 +1,14 @@
 from datetime import date
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_today
 from app.db import get_session
-from app.models import Employee
+from app.models import Employee, utc_now
 from app.repositories.employees import EmployeeListQuery, SortColumn, StatusFilter
-from app.schemas import EmployeeCreate, EmployeeOut, EmployeePage
+from app.schemas import EmployeeCreate, EmployeeOut, EmployeePage, EmployeeUpdate
 from app.services import employees as service
 
 router = APIRouter(prefix="/employees", tags=["employees"])
@@ -58,3 +58,16 @@ def get_employee(employee_id: int, session: SessionDep) -> Employee:
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=EmployeeOut)
 def create_employee(data: EmployeeCreate, session: SessionDep, today: TodayDep) -> Employee:
     return service.create_employee(session, data, today)
+
+
+@router.patch("/{employee_id}", response_model=EmployeeOut)
+def update_employee(
+    employee_id: int, patch: EmployeeUpdate, session: SessionDep, today: TodayDep
+) -> Employee:
+    return service.update_employee(session, employee_id, patch, today)
+
+
+@router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_employee(employee_id: int, session: SessionDep) -> Response:
+    service.terminate_employee(session, employee_id, utc_now())
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
