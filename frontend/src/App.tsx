@@ -1,7 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { NavLink, Navigate, Route, Routes } from 'react-router'
 import { EmployeesPage } from '@/features/employees/EmployeesPage'
-import { InsightsPage } from '@/features/insights/InsightsPage'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+
+const InsightsPage = lazy(() =>
+  import('@/features/insights/InsightsPage').then((m) => ({ default: m.InsightsPage })),
+)
 
 const NAV = [
   { to: '/employees', label: 'Employees' },
@@ -36,7 +41,14 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/employees" replace />} />
           <Route path="/employees" element={<EmployeesPage />} />
-          <Route path="/insights" element={<InsightsPage />} />
+          <Route
+            path="/insights"
+            element={
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <InsightsPage />
+              </Suspense>
+            }
+          />
           <Route path="*" element={<Navigate to="/employees" replace />} />
         </Routes>
       </main>
