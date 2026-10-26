@@ -5,6 +5,7 @@ description = "Employee salary management for ACME HR"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "alembic>=1.20.1",
+    "email-validator>=2.3.0",
     "fastapi>=0.162.0",
     "pydantic-settings>=2.16.1",
     "sqlalchemy>=2",
