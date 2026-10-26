@@ -41,3 +41,24 @@ questions, then stop."
 **Accepted as proposed:** integer minor units, native-currency per-country insights with only the
 org-wide summary converted, window-function median, offset pagination, indexes deferred to
 measured Phase 6 work, routers → services → repositories, single Docker image.
+
+## Phase 1: Backend skeleton (+ frontend scaffold for CI)
+
+**Prompt (summary):** "Project structure, config, DB session, Alembic, health endpoint,
+lint/type/test tooling, CI for both apps."
+
+**What the assistant did, and the corrections along the way:**
+- Used `uv` to manage Python 3.12. The machine only had 3.9, and `uv` gives a lockfile and fast CI.
+- Wrote the health test first (red), then the endpoint. It also added a test for the 503 path,
+  because a health check that can't fail tells you nothing.
+- Starlette now warns that `httpx` is deprecated for its `TestClient`. The assistant swapped in
+  `httpx2` rather than suppressing the warning, and made pytest treat warnings as errors so
+  this kind of drift fails loudly.
+- The current Vite template ships with `oxlint`. The assistant replaced it with ESLint +
+  Prettier, because the brief asks for those specifically.
+- Alembic reads `DATABASE_URL` from the app's settings, so the app and migrations share one
+  source of truth, with `render_as_batch=True` so SQLite `ALTER TABLE` works.
+
+**Dependencies added and why:** `fastapi`, `uvicorn`, `sqlalchemy`, `pydantic-settings` (env
+config), `alembic`; dev: `pytest`, `httpx2` (TestClient transport), `ruff`, `mypy`. Frontend dev:
+ESLint, Prettier, Vitest, jsdom, Testing Library.
