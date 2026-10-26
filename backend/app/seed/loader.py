@@ -19,10 +19,8 @@ def seed_employees(
     before = _count(session)
     now = utc_now()
     for chunk in batched(employees, CHUNK_SIZE):
-        session.execute(
-            _insert_ignoring_conflicts(session),
-            [{**row, "status": "active", "created_at": now, "updated_at": now} for row in chunk],
-        )
+        rows = [{**row, "status": "active", "created_at": now, "updated_at": now} for row in chunk]
+        session.execute(_insert_ignoring_conflicts(session).values(rows))
     session.commit()
     _refresh_planner_statistics(session)
     return _count(session) - before
