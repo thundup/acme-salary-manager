@@ -20,6 +20,34 @@ jobs:
       - run: uv run mypy app tests
       - run: uv run pytest
 
+  backend-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: acme
+          POSTGRES_PASSWORD: acme
+          POSTGRES_DB: acme
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U acme" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://acme:acme@localhost:5432/acme
+      TEST_DATABASE_URL: postgresql://acme:acme@localhost:5432/acme_test
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: PGPASSWORD=acme psql -h localhost -U acme -d acme -c "CREATE DATABASE acme_test"
+      - run: uv run alembic upgrade head
+      - run: uv run alembic check
+      - run: uv run python -m app.seed
+      - run: uv run pytest
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
