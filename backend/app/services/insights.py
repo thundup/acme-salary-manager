@@ -107,10 +107,10 @@ def distribution(
     session: Session, *, country: str, currency: str | None, buckets: int
 ) -> Distribution:
     filters = _country_filters(country, currency)
-    pay_currency = currency or COUNTRIES[country].currency_code
+    currency_code = pay_currency(country, currency)
     salary_range = repo.salary_range(session, filters)
     if salary_range is None:
-        return Distribution(country, pay_currency, [])
+        return Distribution(country, currency_code, [])
 
     low, high = salary_range
     count = effective_bucket_count(low, high, buckets)
@@ -118,7 +118,7 @@ def distribution(
     ranges = bucket_ranges(minimum=low, maximum=high, buckets=count)
     return Distribution(
         country,
-        pay_currency,
+        currency_code,
         [BucketCount(r.lower_minor, r.upper_minor, counts.get(i, 0)) for i, r in enumerate(ranges)],
     )
 
@@ -147,5 +147,11 @@ def _country_filters(country: str, currency: str | None) -> list[ColumnElement[b
         raise CountryNotFound()
     if currency is not None and currency not in CURRENCIES:
         raise RuleViolation({"currency": f"Unsupported currency '{currency}'"})
-    pay_currency = currency or COUNTRIES[country].currency_code
-    return [Employee.country_code == country, Employee.currency_code == pay_currency]
+    return [
+        Employee.country_code == country,
+        Employee.currency_code == pay_currency(country, currency),
+    ]
+
+
+def pay_currency(country: str, currency: str | None) -> str:
+    return currency or COUNTRIES[country].currency_code

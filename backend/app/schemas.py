@@ -74,3 +74,48 @@ class EmployeePage(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+class Money(BaseModel):
+    amount_minor: int
+    currency: str
+
+
+class CountryStatsOut(BaseModel):
+    country_code: str
+    country_name: str
+    currency_code: str
+    headcount: int
+    min: Money
+    max: Money
+    average: Money
+    median: Money
+
+
+class GroupStatsOut(BaseModel):
+    key: str
+    headcount: int
+    min: Money
+    max: Money
+    average: Money
+
+
+class BucketOut(BaseModel):
+    lower_minor: int
+    upper_minor: int
+    count: int
+
+
+class DistributionOut(BaseModel):
+    country_code: str
+    currency_code: str
+    buckets: list[BucketOut]
+
+
+class OrgSummaryOut(BaseModel):
+    headcount: int
+    total_salary: Money
+    total_bonus: Money
+    average_salary: Money
+    approximate: bool = True
+    rates_as_of: date | None
