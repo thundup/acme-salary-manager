@@ -1,13 +1,26 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { reference } from '@/test/fixtures'
+import { mockApi, renderWithProviders } from '@/test/render'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('App', () => {
-  it('shows the product name as the page heading', () => {
-    render(<App />)
+  it('opens on the employees page with navigation to insights', async () => {
+    mockApi([
+      { path: '/reference', respond: () => ({ body: reference }) },
+      {
+        path: '/employees',
+        respond: () => ({ body: { items: [], total: 0, page: 1, page_size: 25 } }),
+      },
+    ])
 
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'ACME Salary Manager' }),
-    ).toBeInTheDocument()
+    renderWithProviders(<App />, { route: '/' })
+
+    expect(await screen.findByRole('heading', { name: 'Employees', level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Insights' })).toHaveAttribute('href', '/insights')
   })
 })

@@ -1,4 +1,10 @@
-import type { Employee, EmployeeInput, EmploymentType, Reference } from '@/api/types'
+import type {
+  Employee,
+  EmployeeInput,
+  EmployeeUpdate,
+  EmploymentType,
+  Reference,
+} from '@/api/types'
 import { minorToMajorInput, parseMajorToMinor } from '@/lib/money'
 
 export interface EmployeeFormValues {
@@ -129,6 +135,12 @@ export function toEmployeeInput(values: EmployeeFormValues, reference: Reference
     employment_type: values.employment_type || 'full_time',
     hire_date: values.hire_date,
   }
+}
+
+export function toEmployeeUpdate(values: EmployeeFormValues, reference: Reference): EmployeeUpdate {
+  const input: Partial<EmployeeInput> = toEmployeeInput(values, reference)
+  delete input.employee_code
+  return input
 }
 
 export function fieldForServerError(field: string): keyof EmployeeFormValues | null {

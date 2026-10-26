@@ -6,6 +6,7 @@ import {
   fieldForServerError,
   formValuesFrom,
   toEmployeeInput,
+  toEmployeeUpdate,
   validateEmployeeForm,
 } from './form'
 
@@ -84,6 +85,12 @@ describe('toEmployeeInput', () => {
 
   it('sends an empty bonus as null', () => {
     expect(toEmployeeInput(valid, reference).bonus_minor).toBeNull()
+  })
+})
+
+describe('toEmployeeUpdate', () => {
+  it('never sends the immutable employee code', () => {
+    expect(toEmployeeUpdate(valid, reference)).not.toHaveProperty('employee_code')
   })
 })
 
